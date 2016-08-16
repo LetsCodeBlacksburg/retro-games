@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Resolve (presumably) symlinked hook to find meta directory
+realpath=$(perl -MCwd=abs_path -le 'print abs_path readlink(shift);' $0)
+hook_dir=$( cd $(dirname "$realpath"); pwd )
+done_file="$hook_dir/../projects/DONE"
+
+if [ ! -e "$done_file" ]; then
+  echo "$done_file not found!"; 
+  exit 1
+fi
+
+commit_msg=$(cat "$done_file")
+
+# Ensure there's something in the message so that it won't abort
+[ -z "$commit_msg" ] && commit_msg='.'
+
+echo > "$done_file"
+
+cd "$hook_dir/../"
+
+git commit -m '.' -a
+git push 
